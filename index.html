@@ -467,11 +467,9 @@
 </body>
 </html>
  
-</body>
-</html> 
+  
      
-      
-    <!DOCTYPE html>
+     <!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
@@ -541,7 +539,7 @@
   </div>
 
   <script>
-    const MASTER_ADMIN_KEY = "AVCI2026"; 
+    const MASTER_ADMIN_KEY = "AVCI135"; 
     let userApiKey = localStorage.getItem("AVCI_API_KEY") || "";
     let isAdmin = false;
 
@@ -567,7 +565,7 @@
         document.getElementById("authArea").classList.add("hidden");
         document.getElementById("adminForm").classList.remove("hidden");
 
-        printConsole("> Admin doğrulandı! Canlı Gemini 1.5 bağlantısı aktif.", "text-green-400 font-bold");
+        printConsole("> Admin doğrulandı! Canlı Gemini bağlantısı aktif.", "text-green-400 font-bold");
       } else {
         printConsole("> HATA: Geçersiz Admin Key!", "text-red-400");
       }
@@ -594,32 +592,39 @@
       const loadingId = "load-" + Date.now();
       printConsole(`> Avcı AI düşünüyor...`, "text-indigo-400", loadingId);
 
-      try {
-        // Düzeltilen Resmi Google Gemini 1.5 Flash Endpoint Adresi
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(userApiKey)}`;
+      // Otomatik Model Seçenekleri (2.5-flash veya 2.0-flash)
+      const modelsToTry = ["gemini-2.5-flash", "gemini-2.0-flash"];
+      let success = false;
 
-        const response = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: promptText }] }]
-          })
-        });
+      for (const model of modelsToTry) {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(userApiKey)}`;
 
-        const data = await response.json();
-        removeConsoleElement(loadingId);
+          const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: promptText }] }]
+            })
+          });
 
-        if (data.error) {
-          printConsole(`> API HATA (${data.error.code}): ${data.error.message}`, "text-red-400");
-        } else if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
-          const aiReply = data.candidates[0].content.parts[0].text;
-          printConsole(`> Avcı AI: ${aiReply}`, "text-indigo-300");
-        } else {
-          printConsole(`> HATA: Boş yanıt döndü. 'Key Sil' butonuna basıp yeni anahtar girin.`, "text-amber-400");
+          const data = await response.json();
+
+          if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
+            removeConsoleElement(loadingId);
+            const aiReply = data.candidates[0].content.parts[0].text;
+            printConsole(`> Avcı AI (${model}): ${aiReply}`, "text-indigo-300");
+            success = true;
+            break;
+          }
+        } catch (err) {
+          // Bir sonraki modeli dene
         }
-      } catch (err) {
+      }
+
+      if (!success) {
         removeConsoleElement(loadingId);
-        printConsole(`> Bağlantı Hatası: ${err.message}`, "text-red-400");
+        printConsole(`> API HATA: API Key geçersiz veya kısıtlı. Lütfen 'Key Sil' butonuna basıp https://aistudio.google.com adresinden YENİ bir API Key alın.`, "text-red-400");
       }
     }
 
@@ -641,4 +646,6 @@
 
 </body>
 </html>
-      
+ 
+          
+             
