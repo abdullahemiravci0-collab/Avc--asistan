@@ -98,3 +98,151 @@
 </body>
     </html>
       
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Avcı AI Asistanı</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between p-3 font-sans">
+
+  <!-- Ana Kapsayıcı Kart -->
+  <div class="w-full max-w-lg mx-auto bg-slate-900/60 border border-slate-800 rounded-2xl p-4 my-auto shadow-2xl flex flex-col gap-4">
+    
+    <!-- Üst Başlık -->
+    <div class="text-center">
+      <h1 class="text-lg font-bold text-white tracking-wide">Avcı AI Asistanı Çalışıyor</h1>
+      <p class="text-[11px] text-slate-400 mt-0.5">Google AI Studio altyapısı ile oluşturulmuştur.</p>
+    </div>
+
+    <!-- Sistem Konsolu & Entegre Kod Kutusu -->
+    <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-3 font-mono text-xs space-y-3">
+      <p class="text-indigo-400">&gt; Sistem hazır.</p>
+      
+      <!-- Entegre Çalışan Kod Bloğu -->
+      <div class="rounded-lg border border-slate-800 bg-slate-900/90 overflow-hidden font-sans my-2">
+        <!-- Kod Kutusu Başlık & Butonlar -->
+        <div class="flex items-center justify-between px-2.5 py-1.5 bg-slate-900 border-b border-slate-800 text-[11px] text-slate-300">
+          <span class="font-mono text-slate-400 uppercase font-semibold text-[10px]">JAVASCRIPT</span>
+          
+          <div class="flex items-center gap-1 font-mono">
+            <button 
+              type="button" 
+              id="wrapBtn" 
+              onclick="toggleWordWrap()" 
+              class="px-1.5 py-0.5 rounded text-[10px] text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition"
+            >
+              <span id="wrapText">Kaydır</span>
+            </button>
+            <button 
+              type="button" 
+              id="expandBtn" 
+              onclick="toggleExpand()" 
+              class="px-1.5 py-0.5 rounded text-[10px] text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition"
+            >
+              <span id="expandText">Genişlet</span>
+            </button>
+            <button 
+              type="button" 
+              id="copyBtn" 
+              onclick="handleCopy()" 
+              class="px-1.5 py-0.5 rounded text-[10px] text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition"
+            >
+              <span id="copyText">Kopyala</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Kod İçeriği -->
+        <div id="codeContainer" class="p-2.5 text-[11px] font-mono text-slate-100 max-h-36 overflow-y-auto overflow-x-auto transition-all">
+          <pre id="preBlock" class="m-0 p-0 whitespace-pre"><code id="codeBlock" class="block">console.log("Avcı AI Kod Motoru Başarıyla Çalıştı!");</code></pre>
+        </div>
+
+        <!-- Kod Alt Bilgisi -->
+        <div class="px-2.5 py-1 bg-slate-950 border-t border-slate-800 text-[9px] text-slate-500 flex justify-between font-mono">
+          <span>UTF-8 • JAVASCRIPT</span>
+          <span>Avcı AI Kod Motoru</span>
+        </div>
+      </div>
+
+      <p class="text-indigo-400">&gt; Avcı-Genel Asistan bağlandı.</p>
+    </div>
+
+    <!-- İmza -->
+    <div class="text-center">
+      <p class="text-[10px] text-slate-400">Geliştirici İmza: <span class="text-indigo-400 font-medium">Avcı-Genel Asistan</span></p>
+    </div>
+
+  </div>
+
+  <!-- Mesaj Gönderme Kutusu -->
+  <div class="w-full max-w-lg mx-auto mt-2">
+    <form onsubmit="event.preventDefault();" class="flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800">
+      <input 
+        type="text" 
+        placeholder="Mesajınızı yazın..." 
+        class="flex-1 bg-transparent px-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none"
+      />
+      <button 
+        type="submit" 
+        class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs px-3.5 py-1.5 rounded-lg transition"
+      >
+        Gönder
+      </button>
+    </form>
+  </div>
+
+  <script>
+    let isWrapped = false;
+    let isExpanded = false;
+
+    function toggleWordWrap() {
+      isWrapped = !isWrapped;
+      const pre = document.getElementById("preBlock");
+      const wrapBtn = document.getElementById("wrapBtn");
+      const wrapText = document.getElementById("wrapText");
+
+      if (isWrapped) {
+        pre.className = "m-0 p-0 whitespace-pre-wrap break-words";
+        wrapBtn.className = "px-1.5 py-0.5 rounded text-[10px] bg-indigo-600/30 text-indigo-300 border border-indigo-500/40";
+        wrapText.innerText = "Kaydırma: Açık";
+      } else {
+        pre.className = "m-0 p-0 whitespace-pre";
+        wrapBtn.className = "px-1.5 py-0.5 rounded text-[10px] text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition";
+        wrapText.innerText = "Kaydır";
+      }
+    }
+
+    function toggleExpand() {
+      isExpanded = !isExpanded;
+      const container = document.getElementById("codeContainer");
+      const expandText = document.getElementById("expandText");
+
+      if (isExpanded) {
+        container.classList.remove("max-h-36", "overflow-y-auto");
+        container.classList.add("max-h-none");
+        expandText.innerText = "Daralt";
+      } else {
+        container.classList.remove("max-h-none");
+        container.classList.add("max-h-36", "overflow-y-auto");
+        expandText.innerText = "Genişlet";
+      }
+    }
+
+    function handleCopy() {
+      const code = document.getElementById("codeBlock").innerText;
+      navigator.clipboard.writeText(code);
+      const copyText = document.getElementById("copyText");
+      copyText.innerText = "✓ Tamam";
+      copyText.classList.add("text-green-400");
+      setTimeout(() => {
+        copyText.innerText = "Kopyala";
+        copyText.classList.remove("text-green-400");
+      }, 2000);
+    }
+  </script>
+
+</body>
+</html>
