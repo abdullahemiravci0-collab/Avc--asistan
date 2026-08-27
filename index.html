@@ -388,7 +388,7 @@
     const SECRET_ADMIN_KEY = "AVCI2026"; 
     
     // Google Gemini API Anahtarın (Giriş yapıldıktan sonra kullanılır)
-    "AQ.Ab8RN6JM6JE4aL9dks6FYst86eFB1GafMBM38lHO1b4Wun-geA"; 
+    "; 
     let isAuthenticated = false;
 
     function verifyKey() {
@@ -433,7 +433,7 @@
       consoleBox.scrollTop = consoleBox.scrollHeight;
 
       try {
-        // Doğrudan Gemini API Yapılandırması (AQ.Ab8RN6JM6JE4aL9dks6FYst86eFB1GafMBM38lHO1b4Wun-geA )
+        // Doğrudan Gemini API Yapılandırması (nh )
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -468,4 +468,161 @@
 </html>
  
 </body>
+</html><!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Avcı AI - Güvenli Canlı Sistem</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between p-3 font-sans">
+
+  <!-- Ana Kart -->
+  <div class="w-full max-w-lg mx-auto bg-slate-900/60 border border-slate-800 rounded-2xl p-4 my-auto shadow-2xl flex flex-col gap-4">
+    <div class="text-center">
+      <h1 class="text-lg font-bold text-white tracking-wide">Avcı AI Asistanı</h1>
+      <p class="text-[11px] text-slate-400 mt-0.5">Google Gemini Canlı Altyapısı</p>
+    </div>
+
+    <!-- Terminal & Sohbet Çıktı Alanı -->
+    <div id="consoleBox" class="bg-slate-950 border border-slate-800/80 rounded-xl p-3 font-mono text-xs space-y-2 max-h-80 overflow-y-auto">
+      <p class="text-indigo-400">&gt; Avcı AI Çekirdeği Başlatıldı.</p>
+      <p class="text-amber-400">&gt; UYARI: Giriş yapmak için Admin Key girin.</p>
+    </div>
+
+    <div class="flex justify-between items-center text-[10px] text-slate-400 px-1 font-mono">
+      <span>Geliştirici: <strong class="text-indigo-400">Avcı-Genel Asistan</strong></span>
+      <span id="roleBadge" class="text-red-400 font-semibold">● YETKİSİZ KULLANICI</span>
+    </div>
+  </div>
+
+  <!-- Giriş ve Form -->
+  <div class="w-full max-w-lg mx-auto mt-2 space-y-2">
+    <!-- Admin Key Giriş Alanı -->
+    <div id="authArea" class="flex gap-2">
+      <input 
+        type="password" 
+        id="keyInput"
+        placeholder="Admin Key Giriniz..." 
+        class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500 font-mono"
+      />
+      <button 
+        onclick="authenticateAdmin()" 
+        class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-4 py-2 rounded-xl transition shrink-0"
+      >
+        Yetki Al
+      </button>
+    </div>
+
+    <!-- Canlı Mesaj Formu -->
+    <form id="adminForm" onsubmit="sendToGemini(event)" class="hidden flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-indigo-500/50">
+      <input 
+        type="text" 
+        id="commandInput"
+        placeholder="Avcı AI'ya bir şeyler yazın..." 
+        class="flex-1 bg-transparent px-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none font-mono"
+      />
+      <button 
+        type="submit" 
+        class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-4 py-1.5 rounded-lg transition shrink-0"
+      >
+        Gönder
+      </button>
+    </form>
+  </div>
+
+  <script>
+    // Sabit Admin Şifren
+    const MASTER_ADMIN_KEY = "AVCI135"; 
+    
+    // Kodda API Key metni tutulmaz (GitHub engelini aşan kısım)
+    let userApiKey = localStorage.getItem("AVCI_API_KEY") || "";
+    let isAdmin = false;
+
+    function authenticateAdmin() {
+      const enteredKey = document.getElementById("keyInput").value.trim();
+      const roleBadge = document.getElementById("roleBadge");
+
+      if (enteredKey === MASTER_ADMIN_KEY) {
+        // Eğer daha önce taranan cihazda API Key kayıtlı değilse sorar
+        if (!userApiKey) {
+          const inputApi = prompt("Lütfen yeni aldığınız API / IPK Anahtarınızı yapıştırın:");
+          if (!inputApi) {
+            printConsole("> HATA: API Key girilmedi!", "text-red-400");
+            return;
+          }
+          userApiKey = inputApi.trim();
+          localStorage.setItem("AVCI_API_KEY", userApiKey);
+        }
+
+        isAdmin = true;
+        roleBadge.innerText = "● YETKİLİ (CANLI AI)";
+        roleBadge.className = "text-green-400 font-bold";
+
+        document.getElementById("authArea").classList.add("hidden");
+        document.getElementById("adminForm").classList.remove("hidden");
+
+        printConsole("> Admin doğrulandı! Canlı Gemini 1.5 bağlantısı aktif.", "text-green-400 font-bold");
+      } else {
+        printConsole("> HATA: Geçersiz Admin Key!", "text-red-400");
+      }
+    }
+
+    async function sendToGemini(e) {
+      e.preventDefault();
+      if (!isAdmin || !userApiKey) return;
+
+      const input = document.getElementById("commandInput");
+      const promptText = input.value.trim();
+      if (!promptText) return;
+
+      printConsole(`[Sen]: ${promptText}`, "text-slate-200 font-bold");
+      input.value = "";
+
+      const loadingId = "load-" + Date.now();
+      printConsole(`> Avcı AI düşünüyor...`, "text-indigo-400", loadingId);
+
+      try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${userApiKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: promptText }] }]
+          })
+        });
+
+        const data = await response.json();
+        removeConsoleElement(loadingId);
+
+        if (data.candidates && data.candidates[0] && data.candidates[0].content.parts[0].text) {
+          const aiReply = data.candidates[0].content.parts[0].text;
+          printConsole(`> Avcı AI: ${aiReply}`, "text-indigo-300");
+        } else {
+          printConsole(`> HATA: Yanıt alınamadı. Lütfen API Key'inizi kontrol edin.`, "text-amber-400");
+        }
+      } catch (err) {
+        removeConsoleElement(loadingId);
+        printConsole(`> Bağlantı Hatası: ${err.message}`, "text-red-400");
+      }
+    }
+
+    function printConsole(text, cssClass = "text-slate-300", id = null) {
+      const box = document.getElementById("consoleBox");
+      const p = document.createElement("p");
+      p.className = cssClass;
+      p.innerText = text;
+      if (id) p.id = id;
+      box.appendChild(p);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function removeConsoleElement(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+  </script>
+
+</body>
 </html>
+
