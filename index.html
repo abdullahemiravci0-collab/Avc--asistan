@@ -647,5 +647,48 @@
 </body>
 </html>
  
-          
+    async function sendToGemini(e) {
+  e.preventDefault();
+  if (!isAdmin || !userApiKey) return;
+
+  const input = document.getElementById("commandInput");
+  const promptText = input.value.trim();
+  if (!promptText) return;
+
+  printConsole(`[Sen]: ${promptText}`, "text-slate-200 font-bold");
+  input.value = "";
+
+  const loadingId = "load-" + Date.now();
+  printConsole(`> Avcı AI yanıt hazırlıyor...`, "text-indigo-400", loadingId);
+
+  // Güncel v1beta uç noktası
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(userApiKey)}`;
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: promptText }] }]
+      })
+    });
+
+    const data = await response.json();
+    removeConsoleElement(loadingId);
+
+    if (data.error) {
+      // Hata detayını konsola açıkça yazdırır
+      printConsole(`> API HATA (${data.error.code}): ${data.error.message}`, "text-red-400");
+    } else if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
+      const aiReply = data.candidates[0].content.parts[0].text;
+      printConsole(`> Avcı AI: ${aiReply}`, "text-indigo-300");
+    }
+  } catch (err) {
+    removeConsoleElement(loadingId);
+    printConsole(`> Bağlantı Hatası: ${err.message}`, "text-red-400");
+  }
+}
+      
              
