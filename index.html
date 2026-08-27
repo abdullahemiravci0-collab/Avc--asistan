@@ -394,5 +394,157 @@
   </script>
 
 </body>
+</html><!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Avcı AI Asistanı</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between p-3 font-sans">
+
+  <!-- Ana Kapsayıcı Kart -->
+  <div class="w-full max-w-lg mx-auto bg-slate-900/60 border border-slate-800 rounded-2xl p-4 my-auto shadow-2xl flex flex-col gap-4">
+    
+    <!-- Üst Başlık -->
+    <div class="text-center">
+      <h1 class="text-lg font-bold text-white tracking-wide">Avcı AI Asistanı</h1>
+      <p class="text-[11px] text-slate-400 mt-0.5">Google Gemini altyapısı ile çalışmaktadır.</p>
+    </div>
+
+    <!-- Sistem Konsolu & Canlı Sohbet Alanı -->
+    <div id="chatConsole" class="bg-slate-950 border border-slate-800/80 rounded-xl p-3 font-mono text-xs space-y-3 max-h-96 overflow-y-auto">
+      <p class="text-indigo-400">&gt; Sistem başlatıldı.</p>
+      <p class="text-amber-400">&gt; UYARI: İşlem yapmak için lütfen Admin Key girin.</p>
+    </div>
+
+    <!-- İmza & Durum -->
+    <div class="text-center flex justify-between items-center px-1 text-[10px] text-slate-400">
+      <span>Geliştirici: <strong class="text-indigo-400 font-medium">Avcı-Genel Asistan</strong></span>
+      <span id="authStatus" class="text-red-400">● Yetkisiz</span>
+    </div>
+
+  </div>
+
+  <!-- Giriş Formu & Admin Key Girişi -->
+  <div class="w-full max-w-lg mx-auto mt-2 space-y-2">
+    <!-- Admin Key Girişi (İlk başta görünür) -->
+    <div id="keyBox" class="flex gap-2">
+      <input 
+        type="password" 
+        id="adminKeyInput"
+        placeholder="Admin Key giriniz..." 
+        class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+      />
+      <button 
+        onclick="verifyKey()" 
+        class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-3.5 py-1.5 rounded-xl transition"
+      >
+        Giriş Yap
+      </button>
+    </div>
+
+    <!-- Mesaj Gönderme Kutusu (Admin Girişinden Sonra Aktifleşir) -->
+    <form id="messageForm" onsubmit="handleSendMessage(event)" class="hidden flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800">
+      <input 
+        type="text" 
+        id="userInput"
+        placeholder="Avcı AI'ya bir şeyler yazın..." 
+        class="flex-1 bg-transparent px-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none"
+      />
+      <button 
+        type="submit" 
+        id="sendBtn"
+        class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs px-3.5 py-1.5 rounded-lg transition"
+      >
+        Gönder
+      </button>
+    </form>
+  </div>
+
+  <script>
+    // Varsayılan Admin Key (Buraya kendi belirlediğin şifreyi yazabilirsin)
+    const SECRET_ADMIN_KEY = "AVCI2026"; 
+    
+    // Google Gemini API Anahtarın (Giriş yapıldıktan sonra kullanılır)
+    let GEMINI_API_KEY = ""; 
+    let isAuthenticated = false;
+
+    function verifyKey() {
+      const inputKey = document.getElementById("adminKeyInput").value;
+      const consoleBox = document.getElementById("chatConsole");
+      const authStatus = document.getElementById("authStatus");
+
+      if (inputKey === SECRET_ADMIN_KEY) {
+        isAuthenticated = true;
+        authStatus.innerText = "● Yetkili (Admin)";
+        authStatus.className = "text-green-400 font-semibold";
+
+        document.getElementById("keyBox").classList.add("hidden");
+        document.getElementById("messageForm").classList.remove("hidden");
+
+        consoleBox.innerHTML += `<p class="text-green-400">&gt; Admin doğrulandı! Avcı AI bağlantısı kuruldu.</p>`;
+        consoleBox.scrollTop = consoleBox.scrollHeight;
+      } else {
+        consoleBox.innerHTML += `<p class="text-red-400">&gt; HATA: Geçersiz Admin Key!</p>`;
+        consoleBox.scrollTop = consoleBox.scrollHeight;
+      }
+    }
+
+    async function handleSendMessage(e) {
+      e.preventDefault();
+      if (!isAuthenticated) return;
+
+      const input = document.getElementById("userInput");
+      const message = input.value.trim();
+      if (!message) return;
+
+      const consoleBox = document.getElementById("chatConsole");
+
+      // Kullanıcı Mesajını Ekle
+      consoleBox.innerHTML += `<p class="text-slate-200"><strong>Sen:</strong> ${escapeHtml(message)}</p>`;
+      input.value = "";
+      consoleBox.scrollTop = consoleBox.scrollHeight;
+
+      // Bekleniyor Mesajı
+      const loadingId = "loading-" + Date.now();
+      consoleBox.innerHTML += `<p id="${loadingId}" class="text-indigo-400">&gt; Avcı AI yanıt hazırlıyor...</p>`;
+      consoleBox.scrollTop = consoleBox.scrollHeight;
+
+      try {
+        // Doğrudan Gemini API Yapılandırması (Backend kullanmıyorsan buraya Gemini API Key yazabilirsin)
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: message }] }]
+          })
+        });
+
+        const data = await response.json();
+        document.getElementById(loadingId).remove();
+
+        if (data.candidates && data.candidates[0].content.parts[0].text) {
+          const aiReply = data.candidates[0].content.parts[0].text;
+          consoleBox.innerHTML += `<p class="text-indigo-300"><strong>Avcı AI:</strong> ${escapeHtml(aiReply)}</p>`;
+        } else {
+          consoleBox.innerHTML += `<p class="text-amber-400">&gt; Avcı AI: (Yanıt alınamadı. API Key konfigürasyonunu kontrol edin.)</p>`;
+        }
+      } catch (err) {
+        if(document.getElementById(loadingId)) document.getElementById(loadingId).remove();
+        consoleBox.innerHTML += `<p class="text-red-400">&gt; Bağlantı Hatası: ${err.message}</p>`;
+      }
+      
+      consoleBox.scrollTop = consoleBox.scrollHeight;
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+  </script>
+
+</body>
 </html>
+        
         
