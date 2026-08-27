@@ -1,48 +1,4 @@
-<div className="flex items-center justify-between px-3.5 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-300"><div className="flex items-center justify-between px-3.5 py-2 bg-slate-900/95 border-b border-slate-800 text-xs text-slate-300 select-none">
-   <div className="flex items-center gap-2"><Code2 className="w-3.5 h-3.5 text-indigo-400" /><Code2 className="w-4 h-4 text-indigo-400" />
-     <span className="font-mono text-slate-200 uppercase font-semibold text-[11px] tracking-wider">
-       {cleanLang}
-     </span><!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avcı - Genel Asistan</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans">
-
-    <!-- Üst Başlık & İzin/İmza Alanı -->
-    <header class="flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-slate-800 text-xs text-slate-300">
-        <div class="flex items-center gap-2">
-            <span class="font-mono text-indigo-400 uppercase font-semibold text-[12px] tracking-wider">
-                AVCI - GENEL ASİSTAN
-            </span>
-        </div>
-        <div class="text-[10px] text-slate-500 font-mono">
-            VERIFIED APP
-        </div>
-    </header>
-
-    <!-- Ana İçerik / AI Ekranı -->
-    <main class="flex-1 flex flex-col items-center justify-center p-4 text-center">
-        <div class="max-w-md w-full bg-slate-900/95 p-6 rounded-xl border border-slate-800 shadow-xl">
-            <h1 class="text-xl font-bold text-slate-100 mb-2">Avcı AI Asistanı Çalışıyor</h1>
-            <p class="text-slate-400 text-sm mb-4">Google AI Studio altyapısı ile oluşturulmuştur.</p>
-            <div class="p-3 bg-slate-950 rounded-lg border border-slate-800 text-left text-xs font-mono text-indigo-300">
-                > Sistem hazır.<br>
-                > Avcı-Genel Asistan bağlandı.
-            </div>
-        </div>
-    </main>
-
-    <!-- GitHub Alt İmza (Signature) -->
-    <footer class="px-4 py-2 bg-slate-900 border-t border-slate-800 text-[11px] text-slate-400 text-center">
-        Geliştirici İmza: <span class="text-indigo-400 font-semibold">Avcı-Genel Asistan</span>
-    </footer>
-
-</body>
-</html><div className="flex items-center gap-1.5">
+<div className="flex items-center justify-between px-3.5 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-300"><div className="flex items-center gap-1.5">
   {/* Word Wrap Toggle */}
   <button
     type="button"
@@ -97,6 +53,123 @@
    <span>UTF-8 • {cleanLang}</span>
    <span>Avcı AI Kod Motoru</span>
 </div><!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Avcı AI Kod Motoru</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-2">
+
+  <!-- Main Code Box -->
+  <div class="w-full max-w-2xl rounded-lg border border-slate-800 bg-slate-950 overflow-hidden shadow-xl flex flex-col">
+    
+    <!-- Header Controls -->
+    <div class="flex items-center justify-between px-2.5 py-2 bg-slate-900 border-b border-slate-800 text-xs gap-1">
+      <span id="langDisplay" class="font-mono text-slate-300 uppercase font-semibold text-[10px] sm:text-xs tracking-wider shrink-0">JAVASCRIPT</span>
+      
+      <!-- Buttons Group -->
+      <div class="flex items-center gap-1 shrink-0">
+        <!-- Word Wrap Toggle -->
+        <button
+          type="button"
+          id="wrapBtn"
+          onclick="toggleWordWrap()"
+          class="px-1.5 py-1 rounded text-[10px] font-medium transition text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent"
+        >
+          <span id="wrapText">Kaydır</span>
+        </button>
+
+        <!-- Fullscreen / Expand Toggle -->
+        <button
+          type="button"
+          id="expandBtn"
+          onclick="toggleExpand()"
+          class="px-1.5 py-1 rounded text-[10px] font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition border border-transparent"
+        >
+          <span id="expandText">Genişlet</span>
+        </button>
+
+        <!-- Copy Button -->
+        <button
+          type="button"
+          id="copyBtn"
+          onclick="handleCopy()"
+          class="px-1.5 py-1 rounded text-[10px] font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition border border-transparent"
+        >
+          <span id="copyText">Kopyala</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Code Body Container -->
+    <div
+      id="codeContainer"
+      class="p-3 text-xs font-mono leading-relaxed text-slate-100 selection:bg-indigo-500/40 selection:text-white transition-all max-h-44 overflow-y-auto overflow-x-auto"
+    >
+      <pre id="preBlock" class="m-0 p-0 font-mono whitespace-pre"><code id="codeBlock" class="block tracking-normal">console.log("Avcı AI Kod Motoru Başarıyla Çalıştı!");</code></pre>
+    </div>
+
+    <!-- Code Footer Quick Info -->
+    <div class="px-2.5 py-1.5 bg-slate-950 border-t border-slate-900 text-[9px] sm:text-[10px] text-slate-400 flex items-center justify-between font-mono">
+      <span>UTF-8 • <span id="footerLang">JAVASCRIPT</span></span>
+      <span>Avcı AI v0.3</span>
+    </div>
+
+  </div>
+
+  <script>
+    let isWrapped = false;
+    let isExpanded = false;
+
+    function toggleWordWrap() {
+      isWrapped = !isWrapped;
+      const pre = document.getElementById("preBlock");
+      const wrapBtn = document.getElementById("wrapBtn");
+      const wrapText = document.getElementById("wrapText");
+
+      if (isWrapped) {
+        pre.className = "m-0 p-0 font-mono whitespace-pre-wrap break-words";
+        wrapBtn.className = "px-1.5 py-1 rounded text-[10px] font-medium transition bg-indigo-600/30 text-indigo-300 border border-indigo-500/40";
+        wrapText.innerText = "Kaydırma: Açık";
+      } else {
+        pre.className = "m-0 p-0 font-mono whitespace-pre";
+        wrapBtn.className = "px-1.5 py-1 rounded text-[10px] font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition border border-transparent";
+        wrapText.innerText = "Kaydır";
+      }
+    }
+
+    function toggleExpand() {
+      isExpanded = !isExpanded;
+      const container = document.getElementById("codeContainer");
+      const expandText = document.getElementById("expandText");
+
+      if (isExpanded) {
+        container.classList.remove("max-h-44", "overflow-y-auto");
+        container.classList.add("max-h-none");
+        expandText.innerText = "Daralt";
+      } else {
+        container.classList.remove("max-h-none");
+        container.classList.add("max-h-44", "overflow-y-auto");
+        expandText.innerText = "Genişlet";
+      }
+    }
+
+    function handleCopy() {
+      const code = document.getElementById("codeBlock").innerText;
+      navigator.clipboard.writeText(code);
+      const copyText = document.getElementById("copyText");
+      copyText.innerText = "✓ Tamam";
+      copyText.classList.add("text-green-400");
+      setTimeout(() => {
+        copyText.innerText = "Kopyala";
+        copyText.classList.remove("text-green-400");
+      }, 2000);
+    }
+  </script>
+</body>
+     </html> <!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
@@ -241,157 +314,158 @@
       }, 2000);
     }
   </script>
-
-</body>
-</html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Avcı AI - Admin Modu</title>
+  <title>Avcı AI Asistanı</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between p-3 font-sans">
 
-  <!-- Ana Kart -->
+  <!-- Ana Kapsayıcı Kart -->
   <div class="w-full max-w-lg mx-auto bg-slate-900/60 border border-slate-800 rounded-2xl p-4 my-auto shadow-2xl flex flex-col gap-4">
     
-    <!-- Başlık -->
+    <!-- Üst Başlık -->
     <div class="text-center">
       <h1 class="text-lg font-bold text-white tracking-wide">Avcı AI Asistanı</h1>
-      <p class="text-[11px] text-slate-400 mt-0.5">Admin Key Korumalı Sistem</p>
+      <p class="text-[11px] text-slate-400 mt-0.5">Google Gemini altyapısı ile çalışmaktadır.</p>
     </div>
 
-    <!-- Terminal & Sohbet Çıktı Alanı -->
-    <div id="consoleBox" class="bg-slate-950 border border-slate-800/80 rounded-xl p-3 font-mono text-xs space-y-2 max-h-80 overflow-y-auto">
-      <p class="text-indigo-400">&gt; Avcı AI Çekirdeği Başlatıldı.</p>
-      <p class="text-amber-400">&gt; Sistem erisimi icin lutfen Admin Key girin.</p>
+    <!-- Sistem Konsolu & Canlı Sohbet Alanı -->
+    <div id="chatConsole" class="bg-slate-950 border border-slate-800/80 rounded-xl p-3 font-mono text-xs space-y-3 max-h-96 overflow-y-auto">
+      <p class="text-indigo-400">&gt; Sistem başlatıldı.</p>
+      <p class="text-amber-400">&gt; UYARI: İşlem yapmak için lütfen Admin Key girin.</p>
     </div>
 
-    <!-- Alt Bilgi ve Durum -->
-    <div class="flex justify-between items-center text-[10px] text-slate-400 px-1 font-mono">
-      <span>Geliştirici: <strong class="text-indigo-400">Avcı-Genel Asistan</strong></span>
-      <span id="roleBadge" class="text-red-400 font-semibold">● YETKİSİZ KULLANICI</span>
+    <!-- İmza & Durum -->
+    <div class="text-center flex justify-between items-center px-1 text-[10px] text-slate-400">
+      <span>Geliştirici: <strong class="text-indigo-400 font-medium">Avcı-Genel Asistan</strong></span>
+      <span id="authStatus" class="text-red-400">● Yetkisiz</span>
     </div>
 
   </div>
 
-  <!-- Giriş ve Mesaj Formu -->
+  <!-- Giriş Formu & Admin Key Girişi -->
   <div class="w-full max-w-lg mx-auto mt-2 space-y-2">
-    
-    <!-- Admin Key Giriş Kutusu -->
-    <div id="authArea" class="flex gap-2">
+    <!-- Admin Key Girişi (İlk başta görünür) -->
+    <div id="keyBox" class="flex gap-2">
       <input 
         type="password" 
-        id="keyInput"
-        placeholder="Admin Key Giriniz (AVCI135)..." 
-        class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500 font-mono"
+        id="adminKeyInput"
+        placeholder="Admin Key giriniz..." 
+        class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
       />
       <button 
-        onclick="authenticateAdmin()" 
-        class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-4 py-2 rounded-xl transition shrink-0"
+        onclick="verifyKey()" 
+        class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-3.5 py-1.5 rounded-xl transition"
       >
-        Yetki Al
+        Giriş Yap
       </button>
     </div>
 
-    <!-- Mesaj Gönderme Formu (Giriş Yapılınca Açılır) -->
-    <form id="adminForm" onsubmit="sendMessage(event)" class="hidden flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-indigo-500/50">
+    <!-- Mesaj Gönderme Kutusu (Admin Girişinden Sonra Aktifleşir) -->
+    <form id="messageForm" onsubmit="handleSendMessage(event)" class="hidden flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800">
       <input 
         type="text" 
-        id="commandInput"
+        id="userInput"
         placeholder="Avcı AI'ya bir şeyler yazın..." 
-        class="flex-1 bg-transparent px-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none font-mono"
+        class="flex-1 bg-transparent px-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none"
       />
       <button 
         type="submit" 
-        class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-4 py-1.5 rounded-lg transition shrink-0"
+        id="sendBtn"
+        class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs px-3.5 py-1.5 rounded-lg transition"
       >
         Gönder
       </button>
     </form>
-
   </div>
 
   <script>
-    // Sabit Admin Key
-    const MASTER_ADMIN_KEY = "AVCI135"; 
-    let isAdmin = false;
+    // Varsayılan Admin Key (Buraya kendi belirlediğin şifreyi yazabilirsin)
+    const SECRET_ADMIN_KEY = "AVCI2026"; 
+    
+    // Google Gemini API Anahtarın (Giriş yapıldıktan sonra kullanılır)
+    let GEMINI_API_KEY = ""; 
+    let isAuthenticated = false;
 
-    // Admin Yetkilendirme
-    function authenticateAdmin() {
-      const enteredKey = document.getElementById("keyInput").value.trim();
-      const roleBadge = document.getElementById("roleBadge");
+    function verifyKey() {
+      const inputKey = document.getElementById("adminKeyInput").value;
+      const consoleBox = document.getElementById("chatConsole");
+      const authStatus = document.getElementById("authStatus");
 
-      if (enteredKey === MASTER_ADMIN_KEY) {
-        isAdmin = true;
-        roleBadge.innerText = "● YETKİLİ (ADMIN)";
-        roleBadge.className = "text-green-400 font-bold";
+      if (inputKey === SECRET_ADMIN_KEY) {
+        isAuthenticated = true;
+        authStatus.innerText = "● Yetkili (Admin)";
+        authStatus.className = "text-green-400 font-semibold";
 
-        document.getElementById("authArea").classList.add("hidden");
-        document.getElementById("adminForm").classList.remove("hidden");
+        document.getElementById("keyBox").classList.add("hidden");
+        document.getElementById("messageForm").classList.remove("hidden");
 
-        printConsole("> Admin yetkisi başarıyla alındı. Sistem kullanıma hazır.", "text-green-400 font-bold");
+        consoleBox.innerHTML += `<p class="text-green-400">&gt; Admin doğrulandı! Avcı AI bağlantısı kuruldu.</p>`;
+        consoleBox.scrollTop = consoleBox.scrollHeight;
       } else {
-        printConsole("> HATA: Geçersiz Admin Key!", "text-red-400");
+        consoleBox.innerHTML += `<p class="text-red-400">&gt; HATA: Geçersiz Admin Key!</p>`;
+        consoleBox.scrollTop = consoleBox.scrollHeight;
       }
     }
 
-    // Mesaj İşleme ve Yanıt Verme
-    function sendMessage(e) {
+    async function handleSendMessage(e) {
       e.preventDefault();
-      if (!isAdmin) return;
+      if (!isAuthenticated) return;
 
-      const input = document.getElementById("commandInput");
-      const userText = input.value.trim();
-      if (!userText) return;
+      const input = document.getElementById("userInput");
+      const message = input.value.trim();
+      if (!message) return;
 
-      printConsole(`[Sen]: ${userText}`, "text-slate-200 font-bold");
+      const consoleBox = document.getElementById("chatConsole");
+
+      // Kullanıcı Mesajını Ekle
+      consoleBox.innerHTML += `<p class="text-slate-200"><strong>Sen:</strong> ${escapeHtml(message)}</p>`;
       input.value = "";
+      consoleBox.scrollTop = consoleBox.scrollHeight;
 
-      const loadingId = "load-" + Date.now();
-      printConsole(`> Avcı AI işliyor...`, "text-indigo-400", loadingId);
+      // Bekleniyor Mesajı
+      const loadingId = "loading-" + Date.now();
+      consoleBox.innerHTML += `<p id="${loadingId}" class="text-indigo-400">&gt; Avcı AI yanıt hazırlıyor...</p>`;
+      consoleBox.scrollTop = consoleBox.scrollHeight;
 
-      // Simüle edilmiş akıllı yanıt mekanizması (Harici API gerektirmez, hata vermez)
-      setTimeout(() => {
-        removeConsoleElement(loadingId);
-        let reply = getSmartReply(userText);
-        printConsole(`> Avcı AI: ${reply}`, "text-indigo-300");
-      }, 800);
-    }
+      try {
+        // Doğrudan Gemini API Yapılandırması (AQ.Ab8RN6JWCTBm_dyfhUPeHEydo1ldDYQKI9qnL1ChwRbeEsZChA )
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: message }] }]
+          })
+        });
 
-    // Akıllı Yanıt Üreteci
-    function getSmartReply(query) {
-      const q = query.toLowerCase();
-      if (q.includes("merhaba") || q.includes("selam")) {
-        return "Merhaba patron! Admin yetkilerin aktif, sana nasıl yardımcı olabilirim?";
-      } else if (q.includes("nasıl")) {
-        return "Sistemler tamamen kontrolüm altında ve sorunsuz çalışıyor.";
-      } else if (q.includes("saat") || q.includes("zaman")) {
-        return "Şu anki sistem saati: " + new Date().toLocaleTimeString();
-      } else {
-        return `"${query" komutun alındı ve işleme konuldu. Ek bir API anahtarına ihtiyaç duymadan güvenlik modunda çalışıyorum!`;
+        const data = await response.json();
+        document.getElementById(loadingId).remove();
+
+        if (data.candidates && data.candidates[0].content.parts[0].text) {
+          const aiReply = data.candidates[0].content.parts[0].text;
+          consoleBox.innerHTML += `<p class="text-indigo-300"><strong>Avcı AI:</strong> ${escapeHtml(aiReply)}</p>`;
+        } else {
+          consoleBox.innerHTML += `<p class="text-amber-400">&gt; Avcı AI: (Yanıt alınamadı. API Key konfigürasyonunu kontrol edin.)</p>`;
+        }
+      } catch (err) {
+        if(document.getElementById(loadingId)) document.getElementById(loadingId).remove();
+        consoleBox.innerHTML += `<p class="text-red-400">&gt; Bağlantı Hatası: ${err.message}</p>`;
       }
+      
+      consoleBox.scrollTop = consoleBox.scrollHeight;
     }
 
-    function printConsole(text, cssClass = "text-slate-300", id = null) {
-      const box = document.getElementById("consoleBox");
-      const p = document.createElement("p");
-      p.className = cssClass;
-      p.innerText = text;
-      if (id) p.id = id;
-      box.appendChild(p);
-      box.scrollTop = box.scrollHeight;
-    }
-
-    function removeConsoleElement(id) {
-      const el = document.getElementById(id);
-      if (el) el.remove();
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
   </script>
 
 </body>
 </html>
-
-
-
+ 
+</body>
+</html>
