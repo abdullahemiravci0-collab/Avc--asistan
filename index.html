@@ -1,49 +1,119 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avcı AI Asistan</title>
-    <!-- Tailwind CSS (Görsel tasarım için) -->
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Avcı AI Kod Motoru</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
 
-    <div class="w-full max-w-xl rounded-lg border border-slate-800 bg-slate-950 overflow-hidden shadow-xl flex flex-col">
-        <!-- Header -->
-        <div class="px-3 py-2 bg-slate-900 border-b border-slate-800 flex items-center justify-between gap-2">
-            <span class="font-mono text-slate-200 uppercase font-semibold text-[11px] tracking-wider">JAVASCRIPT</span>
-            <div class="flex items-center gap-1.5">
-                <button onclick="toggleCopy()" id="copyBtn" class="px-2 py-1 rounded-md text-[11px] font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition">
-                    Kopyala
-                </button>
-            </div>
-        </div>
+  <!-- Main Code Box -->
+  <div class="w-full max-w-2xl rounded-lg border border-slate-800 bg-slate-950 overflow-hidden shadow-xl flex flex-col">
+    
+    <!-- Header Controls -->
+    <div class="flex items-center justify-between px-3.5 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-300">
+      <span id="langDisplay" class="font-mono text-slate-400 uppercase tracking-wider font-semibold">JAVASCRIPT</span>
+      
+      <div class="flex items-center gap-1.5">
+        <!-- Word Wrap Toggle -->
+        <button
+          type="button"
+          id="wrapBtn"
+          onclick="toggleWordWrap()"
+          title="Satır kaydırmayı aç/kapat"
+          class="px-2 py-1 rounded-md text-[11px] font-medium transition flex items-center gap-1 text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+        >
+          <span id="wrapText" class="hidden sm:inline">Kaydırma</span>
+        </button>
 
-        {/* Code Body */}
-        <div class="p-4 text-xs font-mono leading-relaxed text-slate-100 max-h-56 overflow-y-auto overflow-x-auto">
-            <pre class="m-0 p-0 font-mono whitespace-pre"><code id="codeContent">console.log("Avcı AI Kod Motoru Çalışıyor!");</code></pre>
-        </div>
+        <!-- Fullscreen / Expand Toggle -->
+        <button
+          type="button"
+          id="expandBtn"
+          onclick="toggleExpand()"
+          title="Yükseklik sınırla / Tam göster"
+          class="px-2 py-1 rounded-md text-[11px] font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition flex items-center gap-1"
+        >
+          <span id="expandText">Genişlet</span>
+        </button>
 
-        {/* Footer */}
-        <div class="px-3.5 py-1.5 bg-slate-950 border-t border-slate-900 text-[10px] text-slate-400 flex items-center justify-between font-mono">
-            <span>UTF-8 • JAVASCRIPT</span>
-            <span>Avcı AI Kod Motoru v0.3</span>
-        </div>
+        <!-- Copy Button -->
+        <button
+          type="button"
+          id="copyBtn"
+          onclick="handleCopy()"
+          class="px-2 py-1 rounded-md text-[11px] font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition flex items-center gap-1"
+        >
+          <span id="copyText" class="hidden sm:inline">Kopyala</span>
+        </button>
+      </div>
     </div>
 
-    <script>
-        function toggleCopy() {
-            const text = document.getElementById("codeContent").innerText;
-            navigator.clipboard.writeText(text);
-            const btn = document.getElementById("copyBtn");
-            btn.innerText = "✓ Kopyalandı";
-            btn.classList.add("text-green-400");
-            setTimeout(() => {
-                btn.innerText = "Kopyala";
-                btn.classList.remove("text-green-400");
-            }, 2000);
-        }
-    </script>
+    <!-- Code Body Container (Kısa yükseklik: max-h-52) -->
+    <div
+      id="codeContainer"
+      class="p-4 text-xs font-mono leading-relaxed text-slate-100 selection:bg-indigo-500/40 selection:text-white transition-all max-h-52 overflow-y-auto overflow-x-auto"
+    >
+      <pre id="preBlock" class="m-0 p-0 font-mono whitespace-pre"><code id="codeBlock" class="block tracking-normal">console.log("Avcı AI Kod Motoru Başarıyla Çalıştı!");</code></pre>
+    </div>
+
+    <!-- Code Footer Quick Info -->
+    <div class="px-3.5 py-1.5 bg-slate-950 border-t border-slate-900 text-[10px] text-slate-400 flex items-center justify-between font-mono">
+      <span>UTF-8 • <span id="footerLang">JAVASCRIPT</span></span>
+      <span>Avcı AI Kod Motoru</span>
+    </div>
+
+  </div>
+
+  <script>
+    let isWrapped = false;
+    let isExpanded = false;
+
+    function toggleWordWrap() {
+      isWrapped = !isWrapped;
+      const pre = document.getElementById("preBlock");
+      const wrapBtn = document.getElementById("wrapBtn");
+      const wrapText = document.getElementById("wrapText");
+
+      if (isWrapped) {
+        pre.className = "m-0 p-0 font-mono whitespace-pre-wrap break-words";
+        wrapBtn.className = "px-2 py-1 rounded-md text-[11px] font-medium transition flex items-center gap-1 bg-indigo-600/30 text-indigo-300 border border-indigo-500/40";
+        wrapText.innerText = "Kaydırma Açık";
+      } else {
+        pre.className = "m-0 p-0 font-mono whitespace-pre";
+        wrapBtn.className = "px-2 py-1 rounded-md text-[11px] font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition flex items-center gap-1";
+        wrapText.innerText = "Kaydırma";
+      }
+    }
+
+    function toggleExpand() {
+      isExpanded = !isExpanded;
+      const container = document.getElementById("codeContainer");
+      const expandText = document.getElementById("expandText");
+
+      if (isExpanded) {
+        container.classList.remove("max-h-52", "overflow-y-auto");
+        container.classList.add("max-h-none");
+        expandText.innerText = "Daralt";
+      } else {
+        container.classList.remove("max-h-none");
+        container.classList.add("max-h-52", "overflow-y-auto");
+        expandText.innerText = "Genişlet";
+      }
+    }
+
+    function handleCopy() {
+      const code = document.getElementById("codeBlock").innerText;
+      navigator.clipboard.writeText(code);
+      const copyText = document.getElementById("copyText");
+      copyText.innerText = "Kopyalandı";
+      copyText.classList.add("text-green-400");
+      setTimeout(() => {
+        copyText.innerText = "Kopyala";
+        copyText.classList.remove("text-green-400");
+      }, 2000);
+    }
+  </script>
 </body>
 </html>
