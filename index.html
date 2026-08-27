@@ -244,4 +244,155 @@
   </script>
 
 </body>
+</html><!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Avcı AI - Admin Kontrol Paneli</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between p-3 font-sans">
+
+  <!-- Ana Kart -->
+  <div class="w-full max-w-lg mx-auto bg-slate-900/60 border border-slate-800 rounded-2xl p-4 my-auto shadow-2xl flex flex-col gap-4">
+    
+    <!-- Başlık -->
+    <div class="text-center">
+      <h1 class="text-lg font-bold text-white tracking-wide">Avcı AI Asistanı</h1>
+      <p class="text-[11px] text-slate-400 mt-0.5">Sistem ve Yetki Yönetim Paneli</p>
+    </div>
+
+    <!-- Terminal & Çıktı Ekranı -->
+    <div id="consoleBox" class="bg-slate-950 border border-slate-800/80 rounded-xl p-3 font-mono text-xs space-y-2 max-h-80 overflow-y-auto">
+      <p class="text-indigo-400">&gt; Avcı AI Çekirdeği Başlatıldı.</p>
+      <p class="text-amber-400">&gt; UYARI: Tam yetki için Admin Key doğrulama bekleniyor...</p>
+    </div>
+
+    <!-- Alt Bilgi ve Yetki Durumu -->
+    <div class="flex justify-between items-center text-[10px] text-slate-400 px-1 font-mono">
+      <span>Geliştirici: <strong class="text-indigo-400">Avcı-Genel Asistan</strong></span>
+      <span id="roleBadge" class="text-red-400 font-semibold">● YETKİSİZ KULLANICI</span>
+    </div>
+
+  </div>
+
+  <!-- Giriş ve Komut Alanı -->
+  <div class="w-full max-w-lg mx-auto mt-2 space-y-2">
+    
+    <!-- Admin Key Giriş Kutusu -->
+    <div id="authArea" class="flex gap-2">
+      <input 
+        type="password" 
+        id="keyInput"
+        placeholder="Admin Key Giriniz..." 
+        class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500 font-mono"
+      />
+      <button 
+        onclick="authenticateAdmin()" 
+        class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-4 py-2 rounded-xl transition shrink-0"
+      >
+        Yetki Al
+      </button>
+    </div>
+
+    <!-- Admin Komut / Mesaj Gönderme Kutusu (Yetki sonrası açılır) -->
+    <form id="adminForm" onsubmit="executeAdminCommand(event)" class="hidden flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-indigo-500/50">
+      <input 
+        type="text" 
+        id="commandInput"
+        placeholder="Admin komutu veya mesajınızı yazın..." 
+        class="flex-1 bg-transparent px-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none font-mono"
+      />
+      <button 
+        type="submit" 
+        class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-4 py-1.5 rounded-lg transition shrink-0"
+      >
+        Çalıştır
+      </button>
+    </form>
+
+  </div>
+
+  <script>
+    // SENİN BELİRLEDİĞİN ADMIN KEY (İstediğin gibi değiştirebilirsin)
+    const MASTER_ADMIN_KEY = "AVCI-ADMIN-2026"; 
+    
+    let isAdmin = false;
+
+    // Admin Key Doğrulama Fonksiyonu
+    function authenticateAdmin() {
+      const enteredKey = document.getElementById("keyInput").value.trim();
+      const consoleBox = document.getElementById("consoleBox");
+      const roleBadge = document.getElementById("roleBadge");
+
+      if (enteredKey === MASTER_ADMIN_KEY) {
+        isAdmin = true;
+
+        // Arayüz Değişiklikleri
+        roleBadge.innerText = "● TAM YETKİLİ ADMİN";
+        roleBadge.className = "text-green-400 font-bold";
+
+        document.getElementById("authArea").classList.add("hidden");
+        document.getElementById("adminForm").classList.remove("hidden");
+
+        // Konsol Güncellemesi
+        printConsole("> EEROR 0: Kısıtlamalar Kaldırıldı.", "text-green-400");
+        printConsole("> ADMIN YETKİSİ ONAYLANDI: İstenilen her işlem yapılabilir.", "text-green-300 font-bold");
+      } else {
+        printConsole("> HATA: Geçersiz Admin Key! Erişim Engellendi.", "text-red-400");
+      }
+    }
+
+    // Admin Komut / Mesaj Çalıştırıcı
+    function executeAdminCommand(e) {
+      e.preventDefault();
+      if (!isAdmin) return;
+
+      const input = document.getElementById("commandInput");
+      const cmd = input.value.trim();
+      if (!cmd) return;
+
+      printConsole(`[ADMIN]: ${cmd}`, "text-slate-100 font-bold");
+      input.value = "";
+
+      // Sistem Tepkisi (Tam Yetkili Mantık)
+      setTimeout(() => {
+        if (cmd.startsWith("/")) {
+          // Özel Admin Komutları Mantığı
+          handleSystemCommand(cmd);
+        } else {
+          // Genel Yapay Zeka Cevabı
+          printConsole(`> Avcı AI (Admin Modu): "${cmd}" komutu/mesajı tam yetkiyle işlendi.`, "text-indigo-300");
+        }
+      }, 300);
+    }
+
+    // Özel Sistem Komutları İşleyicisi
+    function handleSystemCommand(cmd) {
+      switch(cmd.toLowerCase()) {
+        case "/clear":
+          document.getElementById("consoleBox").innerHTML = "";
+          printConsole("> Konsol temizlendi.", "text-amber-400");
+          break;
+        case "/status":
+          printConsole("> SISTEM DURUMU: %100 Çalışıyor | Yetki: Sınırsız Admin", "text-cyan-400");
+          break;
+        default:
+          printConsole(`> Bilinmeyen komut: ${cmd}`, "text-amber-400");
+      }
+    }
+
+    function printConsole(text, cssClass = "text-slate-300") {
+      const box = document.getElementById("consoleBox");
+      const p = document.createElement("p");
+      p.className = cssClass;
+      p.innerText = text;
+      box.appendChild(p);
+      box.scrollTop = box.scrollHeight;
+    }
+  </script>
+
+</body>
 </html>
+        
