@@ -278,7 +278,7 @@
       <input 
         type="password" 
         id="keyInput"
-        placeholder="Admin Key Giriniz..." 
+        placeholder="" 
         class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500 font-mono"
       />
       <button 
@@ -308,14 +308,14 @@
 
   <script>
     // TEK VE GEÇERLİ ADMIN KEY:
-    const MASTER_ADMIN_KEY = "AVCI2026"; 
+    const MASTER_ADMIN_KEY = 135 
     let isAdmin = false;
 
     function authenticateAdmin() {
       const enteredKey = document.getElementById("keyInput").value.trim();
       const roleBadge = document.getElementById("roleBadge");
 
-      if (enteredKey === MASTER_ADMIN_KEY) {
+      if
         isAdmin = true;
         roleBadge.innerText = "● YETKİLİ (ADMİN)";
         roleBadge.className = "text-green-400 font-bold";
