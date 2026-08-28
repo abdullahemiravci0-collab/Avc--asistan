@@ -859,4 +859,173 @@
 </body>
 </html>
     
-             
+      <!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Avcı AI Asistanı</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between p-3 font-sans">
+
+  <div class="w-full max-w-lg mx-auto bg-slate-900/60 border border-slate-800 rounded-2xl p-4 my-auto shadow-2xl flex flex-col gap-4">
+    <div class="text-center">
+      <h1 class="text-lg font-bold text-white tracking-wide">Avcı AI Asistanı</h1>
+      <p class="text-[11px] text-slate-400 mt-0.5">Google Gemini Canlı Altyapısı</p>
+    </div>
+
+    <!-- Terminal & Sohbet Çıktı Alanı -->
+    <div id="consoleBox" class="bg-slate-950 border border-slate-800/80 rounded-xl p-3 font-mono text-xs space-y-2 max-h-80 overflow-y-auto">
+      <p class="text-indigo-400">&gt; Avcı AI Çekirdeği Başlatıldı.</p>
+      <p class="text-amber-400">&gt; UYARI: Giriş yapmak için Admin Key girin.</p>
+    </div>
+
+    <div class="flex justify-between items-center text-[10px] text-slate-400 px-1 font-mono">
+      <span>Geliştirici: <strong class="text-indigo-400">Avcı-Genel Asistan</strong></span>
+      <span id="roleBadge" class="text-red-400 font-semibold">● YETKİSİZ KULLANICI</span>
+    </div>
+  </div>
+
+  <div class="w-full max-w-lg mx-auto mt-2 space-y-2">
+    <!-- Admin Key Giriş Alanı -->
+    <div id="authArea" class="flex gap-2">
+      <input 
+        type="password" 
+        id="keyInput"
+        placeholder="Admin Key Giriniz (AVCI135)..." 
+        class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500 font-mono"
+      />
+      <button 
+        onclick="authenticateAdmin()" 
+        class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-4 py-2 rounded-xl transition shrink-0"
+      >
+        Yetki Al
+      </button>
+    </div>
+
+    <!-- Canlı Mesaj Formu -->
+    <form id="adminForm" onsubmit="sendToGemini(event)" class="hidden flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-indigo-500/50">
+      <input 
+        type="text" 
+        id="commandInput"
+        placeholder="Avcı AI'ya bir şeyler yazın..." 
+        class="flex-1 bg-transparent px-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none font-mono"
+      />
+      <button 
+        type="submit" 
+        class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-4 py-1.5 rounded-lg transition shrink-0"
+      >
+        Gönder
+      </button>
+      <button 
+        type="button" 
+        onclick="resetApiKey()" 
+        class="bg-red-900/40 hover:bg-red-800/60 text-red-300 font-medium text-[10px] px-2 py-1.5 rounded-lg border border-red-800 transition shrink-0"
+      >
+        Key Sil
+      </button>
+    </form>
+  </div>
+
+  <script>
+    const MASTER_ADMIN_KEY = "AVCI135"; 
+    let userApiKey = localStorage.getItem("AVCI_API_KEY") || "";
+    let isAdmin = false;
+
+    function authenticateAdmin() {
+      const enteredKey = document.getElementById("keyInput").value.trim();
+      const roleBadge = document.getElementById("roleBadge");
+
+      if (enteredKey === MASTER_ADMIN_KEY) {
+        if (!userApiKey) {
+          const inputApi = prompt("Google AI Studio'dan aldığınız yeni 'AIzaSy...' API Key'inizi yapıştırın:");
+          if (!inputApi) {
+            printConsole("> HATA: API Key girilmedi!", "text-red-400");
+            return;
+          }
+          userApiKey = inputApi.trim();
+          localStorage.setItem("AVCI_API_KEY", userApiKey);
+        }
+
+        isAdmin = true;
+        roleBadge.innerText = "● YETKİLİ (CANLI AI)";
+        roleBadge.className = "text-green-400 font-bold";
+
+        document.getElementById("authArea").classList.add("hidden");
+        document.getElementById("adminForm").classList.remove("hidden");
+
+        printConsole("> Admin doğrulandı! Canlı bağlantı aktif.", "text-green-400 font-bold");
+      } else {
+        printConsole("> HATA: Geçersiz Admin Key!", "text-red-400");
+      }
+    }
+
+    function resetApiKey() {
+      localStorage.removeItem("AVCI_API_KEY");
+      userApiKey = "";
+      alert("Kayıtlı API Key temizlendi. Sayfa yenileniyor.");
+      location.reload();
+    }
+
+    async function sendToGemini(e) {
+      e.preventDefault();
+      if (!isAdmin || !userApiKey) return;
+
+      const input = document.getElementById("commandInput");
+      const promptText = input.value.trim();
+      if (!promptText) return;
+
+      printConsole(`[Sen]: ${promptText}`, "text-slate-200 font-bold");
+      input.value = "";
+
+      const loadingId = "load-" + Date.now();
+      printConsole(`> Avcı AI yanıt hazırlıyor...`, "text-indigo-400", loadingId);
+
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(userApiKey)}`;
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: promptText }] }]
+          })
+        });
+
+        const data = await response.json();
+        removeConsoleElement(loadingId);
+
+        if (data.error) {
+          printConsole(`> GOOGLE API HATASI (${data.error.code}): ${data.error.message}`, "text-red-400");
+        } else if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
+          const aiReply = data.candidates[0].content.parts[0].text;
+          printConsole(`> Avcı AI: ${aiReply}`, "text-indigo-300");
+        } else {
+          printConsole("> Yanıt alınamadı. Lütfen 'Key Sil' butonuna basıp yeni bir anahtar girin.", "text-amber-400");
+        }
+      } catch (err) {
+        removeConsoleElement(loadingId);
+        printConsole(`> Ağ/Tarayıcı Hatası: ${err.message}`, "text-red-400");
+      }
+    }
+
+    function printConsole(text, cssClass = "text-slate-300", id = null) {
+      const box = document.getElementById("consoleBox");
+      const p = document.createElement("p");
+      p.className = cssClass;
+      p.innerText = text;
+      if (id) p.id = id;
+      box.appendChild(p);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function removeConsoleElement(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+  </script>
+
+</body>
+</html>
+       
