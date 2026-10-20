@@ -9,12 +9,16 @@
   html, body { margin: 0; overflow: hidden; background: #000; font-family: Arial, sans-serif; touch-action: none; user-select: none; }
   canvas { display: block; }
 
+  #errorBox {
+    position: fixed; top: 0; left: 0; right: 0; background: #900; color: #fff;
+    padding: 10px; font-size: 13px; z-index: 999; display: none; word-break: break-all;
+  }
+
   #hud {
     position: fixed; top: 10px; left: 10px; color: #fff;
     font-size: 16px; text-shadow: 2px 2px 4px #000; z-index: 10; pointer-events: none;
   }
 
-  /* Joystick */
   #joyBase {
     position: fixed; bottom: 30px; left: 30px;
     width: 130px; height: 130px; border-radius: 50%;
@@ -27,7 +31,6 @@
     background: rgba(255,255,255,0.5);
   }
 
-  /* Ateş butonu */
   #fireBtn {
     position: fixed; bottom: 40px; right: 30px;
     width: 90px; height: 90px; border-radius: 50%;
@@ -37,7 +40,6 @@
   }
   #fireBtn:active { background: rgba(255,80,80,0.9); }
 
-  /* Kanca butonu */
   #hookBtn {
     position: fixed; bottom: 150px; right: 40px;
     width: 70px; height: 70px; border-radius: 50%;
@@ -72,6 +74,8 @@
 </head>
 <body>
 
+<div id="errorBox"></div>
+
 <div id="hud">
   ❤️ <span id="hp">100</span> | 💀 <span id="score">0</span>
 </div>
@@ -86,7 +90,7 @@
     Sol joystick = hareket<br>
     Sağ tarafta parmağını kaydır = bakın<br>
     Kırmızı buton = ateş<br>
-    Mavi buton = kanca (binaya tutun, uç!)
+    Mavi buton = kanca
   </p>
   <button id="startBtn">OYUNA BAŞLA</button>
 </div>
@@ -100,12 +104,19 @@
 <script type="importmap">
 {
   "imports": {
-    "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
   }
 }
 </script>
 
 <script type="module">
+// Hata gösterme
+window.addEventListener('error', e => {
+  const box = document.getElementById('errorBox');
+  box.style.display = 'block';
+  box.textContent = 'HATA: ' + (e.message || e.error);
+});
+
 import * as THREE from 'three';
 
 // ---------- SAHNE ----------
@@ -131,11 +142,6 @@ scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 const sun = new THREE.DirectionalLight(0x99aaff, 0.9);
 sun.position.set(15, 25, 10);
 sun.castShadow = true;
-sun.shadow.mapSize.set(1024, 1024);
-sun.shadow.camera.left = -50;
-sun.shadow.camera.right = 50;
-sun.shadow.camera.top = 50;
-sun.shadow.camera.bottom = -50;
 scene.add(sun);
 
 // ---------- ZEMİN ----------
@@ -165,7 +171,7 @@ for (let i = 0; i < 14; i++) {
   buildings.push(b);
 }
 
-// ---------- OYUNCU (3. şahıs) ----------
+// ---------- OYUNCU ----------
 const playerMesh = new THREE.Group();
 const body = new THREE.Mesh(
   new THREE.BoxGeometry(0.7, 1.2, 0.5),
@@ -181,7 +187,6 @@ const head = new THREE.Mesh(
 head.position.y = 1.8;
 head.castShadow = true;
 playerMesh.add(head);
-// Silah (sağ elde)
 const gunMesh = new THREE.Mesh(
   new THREE.BoxGeometry(0.15, 0.15, 0.7),
   new THREE.MeshStandardMaterial({ color: 0x222222 })
@@ -196,7 +201,6 @@ const player = {
   pitch: 0,
   hp: 100,
   velY: 0,
-  onGround: true,
   speed: 7
 };
 
@@ -220,7 +224,7 @@ function spawnZombie() {
 }
 
 // ---------- KANCA ----------
-let hookState = 'idle'; // idle | flying | attached
+let hookState = 'idle';
 let hookPos = new THREE.Vector3();
 let hookTarget = new THREE.Vector3();
 const hookLine = new THREE.Line(
@@ -234,7 +238,6 @@ const raycaster = new THREE.Raycaster();
 
 function throwHook() {
   if (hookState !== 'idle') return;
-  // Bakış yönünde binaya ışın at
   const dir = new THREE.Vector3(Math.sin(player.yaw), 0.3, Math.cos(player.yaw)).normalize();
   raycaster.set(player.pos.clone().add(new THREE.Vector3(0, 2, 0)), dir);
   raycaster.far = 40;
@@ -244,10 +247,6 @@ function throwHook() {
     hookState = 'attached';
     hookPos.copy(hits[0].point);
     hookLine.visible = true;
-    hookLine.geometry.setFromPoints([
-      new THREE.Vector3(player.pos.x, 2, player.pos.z),
-      hookPos
-    ]);
   }
 }
 
@@ -275,12 +274,10 @@ function shoot() {
   scene.add(b);
   bullets.push({ mesh: b, dir, life: 1.2, speed: 70 });
 
-  // İsabet kontrolü (hitscan)
   raycaster.set(player.pos.clone().add(new THREE.Vector3(0, 1.5, 0)), dir);
   raycaster.far = 60;
   const hits = raycaster.intersectObjects(zombies.map(z => z.mesh), true);
   if (hits.length > 0) {
-    // Grup içinden zombi bul
     let hitObj = hits[0].object;
     while (hitObj.parent && !zombies.find(z => z.mesh === hitObj)) {
       hitObj = hitObj.parent;
@@ -298,13 +295,11 @@ function shoot() {
   }
 }
 
-// ---------- DOKUNMATİK KONTROL ----------
-// Joystick
+// ---------- DOKUNMATİK ----------
 const joyBase = document.getElementById('joyBase');
 const joyKnob = document.getElementById('joyKnob');
 let joyId = null;
-let joyStart = new THREE.Vector2();
-let joyVec = new THREE.Vector2(); // -1..1
+let joyVec = new THREE.Vector2();
 
 function joyCenter() {
   const r = joyBase.getBoundingClientRect();
@@ -315,7 +310,6 @@ joyBase.addEventListener('touchstart', e => {
   e.preventDefault();
   const t = e.changedTouches[0];
   joyId = t.identifier;
-  joyStart.set(t.clientX, t.clientY);
 });
 joyBase.addEventListener('touchmove', e => {
   e.preventDefault();
@@ -344,16 +338,13 @@ function joyEnd(e) {
 joyBase.addEventListener('touchend', joyEnd);
 joyBase.addEventListener('touchcancel', joyEnd);
 
-// Sağ taraf bakış (ekranın sağ yarısı, joystick/buton dışı)
 let lookId = null;
 let lookLast = new THREE.Vector2();
 document.body.addEventListener('touchstart', e => {
   for (const t of e.changedTouches) {
-    if (t.target === document.body || t.target === renderer.domElement) {
-      if (t.clientX > innerWidth / 2 && lookId === null) {
-        lookId = t.identifier;
-        lookLast.set(t.clientX, t.clientY);
-      }
+    if ((t.target === document.body || t.target === renderer.domElement) && t.clientX > innerWidth/2 && lookId === null) {
+      lookId = t.identifier;
+      lookLast.set(t.clientX, t.clientY);
     }
   }
 }, { passive: false });
@@ -377,14 +368,12 @@ document.body.addEventListener('touchend', e => {
   }
 });
 
-// Ateş butonu
 const fireBtn = document.getElementById('fireBtn');
 let firing = false;
 fireBtn.addEventListener('touchstart', e => { e.preventDefault(); firing = true; });
 fireBtn.addEventListener('touchend', e => { e.preventDefault(); firing = false; });
 fireBtn.addEventListener('touchcancel', () => firing = false);
 
-// Kanca butonu
 const hookBtn = document.getElementById('hookBtn');
 hookBtn.addEventListener('touchstart', e => {
   e.preventDefault();
@@ -392,7 +381,7 @@ hookBtn.addEventListener('touchstart', e => {
   else releaseHook();
 });
 
-// ---------- OYUN DÖNGÜSÜ ----------
+// ---------- DÖNGÜ ----------
 let running = false;
 let spawnTimer = 0;
 let shootCooldown = 0;
@@ -400,7 +389,6 @@ const clock = new THREE.Clock();
 const gravity = -30;
 
 function update(dt) {
-  // Hareket (joystick)
   const forward = new THREE.Vector3(Math.sin(player.yaw), 0, Math.cos(player.yaw));
   const right = new THREE.Vector3(Math.cos(player.yaw), 0, -Math.sin(player.yaw));
   const move = new THREE.Vector3();
@@ -410,7 +398,6 @@ function update(dt) {
 
   const newPos = player.pos.clone().addScaledVector(move, player.speed * dt);
 
-  // Çarpışma
   let blocked = false;
   for (const b of buildings) {
     const s = b.userData.size;
@@ -420,9 +407,8 @@ function update(dt) {
       blocked = true; break;
     }
   }
-  if (!blocked) player.pos.x = newPos.x, player.pos.z = newPos.z;
+  if (!blocked) { player.pos.x = newPos.x; player.pos.z = newPos.z; }
 
-  // Kanca çekişi
   if (hookState === 'attached') {
     const toHook = new THREE.Vector3().subVectors(hookTarget, player.pos.clone().add(new THREE.Vector3(0,1,0)));
     const dist = toHook.length();
@@ -435,18 +421,14 @@ function update(dt) {
     }
   }
 
-  // Yerçekimi + zıplama yok (basit)
   player.velY += gravity * dt;
   player.pos.y += player.velY * dt;
   if (player.pos.y <= 0) { player.pos.y = 0; player.velY = 0; }
 
-  // Oyuncu mesh
   playerMesh.position.copy(player.pos);
   playerMesh.rotation.y = player.yaw;
-  // Silah yönü
   gunMesh.rotation.x = player.pitch;
 
-  // Kamera (3. şahıs, omuz üstü)
   const camOffset = new THREE.Vector3(
     -Math.sin(player.yaw) * 4.5,
     3.2,
@@ -459,7 +441,6 @@ function update(dt) {
     player.pos.z + Math.cos(player.yaw) * 10
   );
 
-  // Kanca çizgisi
   if (hookState === 'attached') {
     hookLine.geometry.setFromPoints([
       new THREE.Vector3(player.pos.x, player.pos.y + 2, player.pos.z),
@@ -467,14 +448,12 @@ function update(dt) {
     ]);
   }
 
-  // Ateş
   shootCooldown -= dt;
   if (firing && shootCooldown <= 0) {
     shoot();
     shootCooldown = 0.18;
   }
 
-  // Mermiler
   for (let i = bullets.length - 1; i >= 0; i--) {
     const b = bullets[i];
     b.mesh.position.addScaledVector(b.dir, b.speed * dt);
@@ -482,7 +461,6 @@ function update(dt) {
     if (b.life <= 0) { scene.remove(b.mesh); bullets.splice(i, 1); }
   }
 
-  // Zombiler
   for (const z of zombies) {
     const dir = new THREE.Vector3().subVectors(player.pos, z.mesh.position);
     dir.y = 0;
@@ -499,7 +477,6 @@ function update(dt) {
     }
   }
 
-  // Spawn
   spawnTimer -= dt;
   if (spawnTimer <= 0 && zombies.length < 15) {
     spawnZombie();
@@ -542,4 +519,4 @@ document.getElementById('restartBtn').onclick = startGame;
 animate();
 </script>
 </body>
-  </html>
+ </html>
